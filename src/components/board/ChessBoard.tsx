@@ -72,6 +72,7 @@ export const ChessBoard: React.FC = () => {
       position: activeFen,
       boardOrientation: (boardFlipped ? 'black' : 'white') as 'white' | 'black',
       allowDragging: false,
+      animationDurationInMs: 150,
       squareStyles: customSquareStyles,
       arrows: arrows,
       darkSquareStyle: { backgroundColor: '#475569' }, // Tailwind slate-600
@@ -82,7 +83,7 @@ export const ChessBoard: React.FC = () => {
   );
 
   return (
-    <div id="chessboard-capture-area" className="w-full max-w-[300px] xs:max-w-[360px] sm:max-w-[480px] md:max-w-[540px] aspect-square bg-slate-900 border-2 border-slate-800 rounded-xl overflow-hidden shadow-2xl p-1 sm:p-2">
+    <div id="chessboard-capture-area" className="w-full max-w-[300px] xs:max-w-[360px] sm:max-w-[480px] md:max-w-[540px] aspect-square bg-slate-900 border-2 border-slate-800 rounded-xl overflow-hidden shadow-2xl p-1 sm:p-2 touch-none transform-gpu">
       <Chessboard options={chessboardOptions} />
     </div>
   );
