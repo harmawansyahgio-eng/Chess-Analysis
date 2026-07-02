@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# Ganti YOUR_GITHUB_USERNAME dan YOUR_REPO_NAME dengan username & nama repo Anda setelah deploy
-Sitemap: https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/sitemap.xml
+Sitemap: https://harmawansyahgio-eng.github.io/Chess-Analysis/sitemap.xml
