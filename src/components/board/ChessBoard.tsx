@@ -40,41 +40,52 @@ export const ChessBoard: React.FC = () => {
     });
   }
 
+  // Memoize squareRenderer callback to keep reference stable across renders
+  const renderSquare = React.useCallback(
+    ({ square, children }: { square: string; children?: React.ReactNode }) => {
+      const isDestSquare = activeMove && activeMove.to === square;
+      const classification = isDestSquare ? classifications[activeMoveIndex] : null;
+
+      return (
+        <div 
+          style={{
+            width: '100%',
+            height: '100%',
+            ...customSquareStyles[square],
+          }}
+          className="relative w-full h-full select-none"
+        >
+          {children}
+          {/* Classification visual overlay */}
+          {isDestSquare && classification && (
+            <SquareOverlay classification={classification} square={square} />
+          )}
+        </div>
+      );
+    },
+    [activeMove, classifications, activeMoveIndex, customSquareStyles]
+  );
+
+  // Memoize chessboard options object to prevent react-chessboard from re-rendering 64 squares on every minor state update
+  const chessboardOptions = React.useMemo(
+    () => ({
+      position: activeFen,
+      boardOrientation: (boardFlipped ? 'black' : 'white') as 'white' | 'black',
+      allowDragging: false,
+      squareStyles: customSquareStyles,
+      arrows: arrows,
+      darkSquareStyle: { backgroundColor: '#475569' }, // Tailwind slate-600
+      lightSquareStyle: { backgroundColor: '#cbd5e1' }, // Tailwind slate-300
+      squareRenderer: renderSquare,
+    }),
+    [activeFen, boardFlipped, customSquareStyles, arrows, renderSquare]
+  );
+
   return (
     <div id="chessboard-capture-area" className="w-full max-w-[300px] xs:max-w-[360px] sm:max-w-[480px] md:max-w-[540px] aspect-square bg-slate-900 border-2 border-slate-800 rounded-xl overflow-hidden shadow-2xl p-1 sm:p-2">
-      <Chessboard
-        options={{
-          position: activeFen,
-          boardOrientation: boardFlipped ? 'black' : 'white',
-          allowDragging: false,
-          squareStyles: customSquareStyles,
-          arrows: arrows,
-          darkSquareStyle: { backgroundColor: '#475569' }, // Tailwind slate-600
-          lightSquareStyle: { backgroundColor: '#cbd5e1' }, // Tailwind slate-300
-          squareRenderer: ({ square, children }) => {
-            const isDestSquare = activeMove && activeMove.to === square;
-            const classification = isDestSquare ? classifications[activeMoveIndex] : null;
-
-            return (
-              <div 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  ...customSquareStyles[square],
-                }}
-                className="relative w-full h-full select-none"
-              >
-                {children}
-                {/* Classification visual overlay */}
-                {isDestSquare && classification && (
-                  <SquareOverlay classification={classification} square={square} />
-                )}
-              </div>
-            );
-          },
-        }}
-      />
+      <Chessboard options={chessboardOptions} />
     </div>
   );
 };
 export default ChessBoard;
+

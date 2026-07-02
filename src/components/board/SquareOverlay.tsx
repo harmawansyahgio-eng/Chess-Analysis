@@ -115,22 +115,16 @@ export const SquareOverlay: React.FC<SquareOverlayProps> = ({ classification, sq
   if (!config) return null;
 
   // Shake animation for Mistakes and Blunders
-  const getAnimateType = () => {
-    if (classification === 'BLUNDER') return 'shake';
-    if (classification === 'MISTAKE') return 'shakeSubtle';
-    return 'none';
+  const getShakeX = () => {
+    if (classification === 'BLUNDER') return [0, -4, 4, -4, 4, -2, 2, 0];
+    if (classification === 'MISTAKE') return [0, -2, 2, -2, 2, 0];
+    return 0;
   };
 
-  const containerVariants = {
-    shake: {
-      x: [0, -4, 4, -4, 4, -2, 2, 0],
-      transition: { duration: 0.4 },
-    },
-    shakeSubtle: {
-      x: [0, -2, 2, -2, 2, 0],
-      transition: { duration: 0.3 },
-    },
-    none: { x: 0 },
+  const getShakeDuration = () => {
+    if (classification === 'BLUNDER') return 0.4;
+    if (classification === 'MISTAKE') return 0.3;
+    return 0;
   };
 
   // Determine edge positioning based on board orientation
@@ -151,11 +145,12 @@ export const SquareOverlay: React.FC<SquareOverlayProps> = ({ classification, sq
       {/* 1. Square Background Highlight */}
       <motion.div
         className={`absolute inset-0 ${config.squareBg}`}
-        variants={containerVariants}
-        animate={getAnimateType()}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
+        initial={{ opacity: 0, x: 0 }}
+        animate={{ opacity: 1, x: getShakeX() }}
+        transition={{
+          opacity: { duration: 0.2 },
+          x: { duration: getShakeDuration(), ease: 'easeInOut' }
+        }}
       />
 
       {/* 2. Special Effects (Sparkles for Brilliant, Pulsing Rings for Great) */}

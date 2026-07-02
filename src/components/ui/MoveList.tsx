@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useChessStore } from '../../store/chessStore';
 import type { Classification } from '../../store/chessStore';
 
@@ -194,20 +194,18 @@ export const MoveList: React.FC<MoveListProps> = ({ onShowDetail }) => {
                       <span className="truncate">{round.white.san}</span>
                       
                       {/* Classification Badge */}
-                      <AnimatePresence>
-                        {classifications[round.white.moveIndex] && (
-                          <motion.span
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className={`text-[9px] px-1 py-0.2 rounded border ${
-                              CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].bg
-                            } ${CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].text}`}
-                            title={CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].label}
-                          >
-                            {CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].symbol}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
+                      {classifications[round.white.moveIndex] && (
+                        <motion.span
+                          initial={{ opacity: 0, x: 5 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`text-[9px] px-1 py-0.2 rounded border ${
+                            CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].bg
+                          } ${CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].text}`}
+                          title={CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].label}
+                        >
+                          {CLASSIFICATION_STYLES[classifications[round.white.moveIndex]].symbol}
+                        </motion.span>
+                      )}
                     </button>
                   )}
                 </div>
@@ -227,20 +225,18 @@ export const MoveList: React.FC<MoveListProps> = ({ onShowDetail }) => {
                       <span className="truncate">{round.black.san}</span>
                       
                       {/* Classification Badge */}
-                      <AnimatePresence>
-                        {classifications[round.black.moveIndex] && (
-                          <motion.span
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className={`text-[9px] px-1 py-0.2 rounded border ${
-                              CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].bg
-                            } ${CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].text}`}
-                            title={CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].label}
-                          >
-                            {CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].symbol}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
+                      {classifications[round.black.moveIndex] && (
+                        <motion.span
+                          initial={{ opacity: 0, x: 5 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`text-[9px] px-1 py-0.2 rounded border ${
+                            CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].bg
+                          } ${CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].text}`}
+                          title={CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].label}
+                        >
+                          {CLASSIFICATION_STYLES[classifications[round.black.moveIndex]].symbol}
+                        </motion.span>
+                      )}
                     </button>
                   )}
                 </div>
