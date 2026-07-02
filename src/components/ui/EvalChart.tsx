@@ -1,57 +1,66 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useChessStore } from '../../store/chessStore';
 import { TrendingUp } from 'lucide-react';
 
 export const EvalChart: React.FC = () => {
-  const { moves, activeMoveIndex, evals, isAnalyzing, setActiveMoveIndex } = useChessStore();
-
-  // 1. Gather all available data points
-  const points: Array<{ index: number; x: number; y: number; evalStr: string; score: number }> = [];
-  
-  // Starting point (index -1 represents starting FEN)
-  points.push({
-    index: -1,
-    x: 0,
-    y: 50,
-    evalStr: '0.00',
-    score: 0
-  });
+  const moves = useChessStore(state => state.moves);
+  const activeMoveIndex = useChessStore(state => state.activeMoveIndex);
+  const evals = useChessStore(state => state.evals);
+  const isAnalyzing = useChessStore(state => state.isAnalyzing);
+  const setActiveMoveIndex = useChessStore(state => state.setActiveMoveIndex);
 
   const N = moves.length;
-  let lastAnalyzedIndex = -1;
 
-  for (let i = 0; i < N; i++) {
-    const evaluation = evals[i];
-    if (!evaluation) break; // Stop drawing the line where evaluations are not yet ready
+  // 1. Gather all available data points (memoized)
+  const { points, lastAnalyzedIndex } = useMemo(() => {
+    const pts: Array<{ index: number; x: number; y: number; evalStr: string; score: number }> = [];
+    
+    // Starting point (index -1 represents starting FEN)
+    pts.push({
+      index: -1,
+      x: 0,
+      y: 50,
+      evalStr: '0.00',
+      score: 0
+    });
 
-    lastAnalyzedIndex = i;
-    let v = 0;
-    let evalStr = '0.00';
+    let lastIdx = -1;
 
-    if (evaluation.isMate) {
-      const mateIn = evaluation.mateIn || 0;
-      v = mateIn > 0 ? 8 : -8;
-      evalStr = `M${Math.abs(mateIn)}`;
-    } else {
-      const scoreVal = evaluation.score;
-      v = Math.max(-8, Math.min(8, scoreVal / 100));
-      const sign = scoreVal >= 0 ? '+' : '';
-      evalStr = `${sign}${(scoreVal / 100).toFixed(2)}`;
+    for (let i = 0; i < N; i++) {
+      const evaluation = evals[i];
+      if (!evaluation) break; // Stop drawing the line where evaluations are not yet ready
+
+      lastIdx = i;
+      let v = 0;
+      let evalStr = '0.00';
+
+      if (evaluation.isMate) {
+        const mateIn = evaluation.mateIn || 0;
+        v = mateIn > 0 ? 8 : -8;
+        evalStr = `M${Math.abs(mateIn)}`;
+      } else {
+        const scoreVal = evaluation.score;
+        v = Math.max(-8, Math.min(8, scoreVal / 100));
+        const sign = scoreVal >= 0 ? '+' : '';
+        evalStr = `${sign}${(scoreVal / 100).toFixed(2)}`;
+      }
+
+      // Map move index (0 to N-1) to X coordinates (0 to 400 SVG units)
+      const x = ((i + 1) / N) * 400;
+      // Map pawn value (-8 to +8) to Y coordinates (90 to 10 SVG units)
+      const y = 50 - (v / 8) * 40; 
+
+      pts.push({
+        index: i,
+        x,
+        y,
+        evalStr,
+        score: v
+      });
     }
 
-    // Map move index (0 to N-1) to X coordinates (0 to 400 SVG units)
-    const x = ((i + 1) / N) * 400;
-    // Map pawn value (-8 to +8) to Y coordinates (90 to 10 SVG units)
-    const y = 50 - (v / 8) * 40; 
-
-    points.push({
-      index: i,
-      x,
-      y,
-      evalStr,
-      score: v
-    });
-  }
+    return { points: pts, lastAnalyzedIndex: lastIdx };
+  }, [moves, evals, N]);
 
   // 2. Generate SVG Paths
   let linePath = '';

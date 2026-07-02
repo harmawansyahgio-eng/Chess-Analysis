@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 import { useChessStore } from '../../store/chessStore';
 
 export const EvalBar: React.FC = () => {
-  const { evals, activeMoveIndex, boardFlipped } = useChessStore();
+  const evals = useChessStore(state => state.evals);
+  const activeMoveIndex = useChessStore(state => state.activeMoveIndex);
+  const boardFlipped = useChessStore(state => state.boardFlipped);
   
   // Get active evaluation
   const activeEval = evals[activeMoveIndex];

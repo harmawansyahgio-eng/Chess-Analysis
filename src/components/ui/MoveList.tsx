@@ -43,15 +43,13 @@ interface MoveListProps {
 }
 
 export const MoveList: React.FC<MoveListProps> = ({ onShowDetail }) => {
-  const { 
-    moves, 
-    activeMoveIndex, 
-    classifications, 
-    setActiveMoveIndex, 
-    isAnalyzing, 
-    accuracies, 
-    analysisProgress 
-  } = useChessStore();
+  const moves = useChessStore(state => state.moves);
+  const activeMoveIndex = useChessStore(state => state.activeMoveIndex);
+  const classifications = useChessStore(state => state.classifications);
+  const setActiveMoveIndex = useChessStore(state => state.setActiveMoveIndex);
+  const isAnalyzing = useChessStore(state => state.isAnalyzing);
+  const accuracies = useChessStore(state => state.accuracies);
+  const analysisProgress = useChessStore(state => state.analysisProgress);
   const { stopAnalysis } = useStockfish();
   const listRef = useRef<HTMLDivElement>(null);
 

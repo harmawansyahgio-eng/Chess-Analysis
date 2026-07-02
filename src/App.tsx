@@ -24,14 +24,12 @@ export const App: React.FC = () => {
     return (saved as any) || 'synth';
   });
 
-  const {
-    moves,
-    activeMoveIndex,
-    setActiveMoveIndex,
-    toggleBoardFlip,
-    isAnalyzing,
-    accuracies,
-  } = useChessStore();
+  const moves = useChessStore(state => state.moves);
+  const activeMoveIndex = useChessStore(state => state.activeMoveIndex);
+  const setActiveMoveIndex = useChessStore(state => state.setActiveMoveIndex);
+  const toggleBoardFlip = useChessStore(state => state.toggleBoardFlip);
+  const isAnalyzing = useChessStore(state => state.isAnalyzing);
+  const accuracies = useChessStore(state => state.accuracies);
 
   const prevAnalyzing = useRef(isAnalyzing);
 

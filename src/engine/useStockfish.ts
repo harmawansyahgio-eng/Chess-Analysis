@@ -96,12 +96,14 @@ export function useStockfish() {
         const handleMessage = (e: MessageEvent) => {
           if (analysisId !== currentAnalysisId.current) {
             worker.removeEventListener('message', handleMessage);
+            worker.removeEventListener('error', handleError);
             return;
           }
 
           const line = e.data as string;
 
           if (line.startsWith('info ')) {
+            if (!line.includes('score')) return;
             const parsed = parseUciInfoLine(line, isWhiteActive);
             if (parsed) {
               latestEval = { ...latestEval, ...parsed };
@@ -120,6 +122,7 @@ export function useStockfish() {
           } else if (line.startsWith('bestmove ')) {
             const bestMove = parseUciBestMoveLine(line);
             worker.removeEventListener('message', handleMessage);
+            worker.removeEventListener('error', handleError);
             
             const finalEval: EvalResult = {
               depth: latestEval.depth || depth,
@@ -132,7 +135,18 @@ export function useStockfish() {
           }
         };
 
+        const handleError = () => {
+          worker.removeEventListener('message', handleMessage);
+          worker.removeEventListener('error', handleError);
+          resolve({
+            depth: 0,
+            score: 0,
+            isMate: false,
+          });
+        };
+
         worker.addEventListener('message', handleMessage);
+        worker.addEventListener('error', handleError);
         
         // Start Stockfish evaluation with optimized depth and movetime limits
         worker.postMessage('ucinewgame');
@@ -171,17 +185,17 @@ export function useStockfish() {
         if (analysisId !== currentAnalysisId.current) return;
         
         evaluations[pos.index] = result;
-        useChessStore.getState().setEvalResult(pos.index, result);
         
         finishedCount++;
-        useChessStore.getState().updateAnalysisProgress(finishedCount);
 
         // Try to classify moves in real time (best effort)
+        const localClassifications: Record<number, Classification> = {};
+        
         const tryClassify = (moveIdx: number) => {
           if (moveIdx < 0 || moveIdx >= moves.length) return;
           const prev = evaluations[moveIdx - 1];
           const curr = evaluations[moveIdx];
-          if (prev && curr && !classifications[moveIdx]) {
+          if (prev && curr && !classifications[moveIdx] && !localClassifications[moveIdx]) {
             const move = moves[moveIdx];
             const isInBook = bookMatches[moveIdx] || false; // Fast cache lookup!
 
@@ -196,16 +210,23 @@ export function useStockfish() {
               fenBefore: move.fenBefore,
               fenAfter: move.fenAfter,
               opponentBestResponseUci: curr.bestMove,
-              prevMoveClassification: moveIdx > 0 ? classifications[moveIdx - 1] : undefined,
+              prevMoveClassification: moveIdx > 0 ? (classifications[moveIdx - 1] || localClassifications[moveIdx - 1]) : undefined,
             });
 
+            localClassifications[moveIdx] = classification;
             classifications[moveIdx] = classification;
-            useChessStore.getState().setClassification(moveIdx, classification);
           }
         };
 
         tryClassify(pos.index);
         tryClassify(pos.index + 1);
+
+        // BATCH STATE UPDATE: Update evaluations, classifications, and progress in a single render cycle!
+        useChessStore.setState((state) => ({
+          evals: { ...state.evals, [pos.index]: result },
+          classifications: { ...state.classifications, ...localClassifications },
+          analysisProgress: { ...state.analysisProgress, analyzed: finishedCount }
+        }));
       }
     };
 
@@ -245,7 +266,7 @@ export function useStockfish() {
       globalWorkers = [];
 
       // Calculate overall accuracy and summary stats
-      const summary = calculateSummary(moves, evaluations, classifications);
+      const summary = calculateSummary(moves, evaluations, classifications, store.pgn);
       useChessStore.getState().finishAnalysis(
         summary.accuracies,
         summary.counts,

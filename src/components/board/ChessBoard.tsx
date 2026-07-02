@@ -4,14 +4,12 @@ import { useChessStore } from '../../store/chessStore';
 import { SquareOverlay } from './SquareOverlay';
 
 export const ChessBoard: React.FC = () => {
-  const {
-    activeFen,
-    activeMoveIndex,
-    moves,
-    classifications,
-    evals,
-    boardFlipped,
-  } = useChessStore();
+  const activeFen = useChessStore(state => state.activeFen);
+  const activeMoveIndex = useChessStore(state => state.activeMoveIndex);
+  const moves = useChessStore(state => state.moves);
+  const classifications = useChessStore(state => state.classifications);
+  const evals = useChessStore(state => state.evals);
+  const boardFlipped = useChessStore(state => state.boardFlipped);
 
   const activeMove = activeMoveIndex !== -1 ? moves[activeMoveIndex] : null;
   const activeEval = activeMoveIndex !== -1 ? evals[activeMoveIndex] : null;
@@ -58,7 +56,14 @@ export const ChessBoard: React.FC = () => {
             const classification = isDestSquare ? classifications[activeMoveIndex] : null;
 
             return (
-              <div className="relative w-full h-full select-none">
+              <div 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  ...customSquareStyles[square],
+                }}
+                className="relative w-full h-full select-none"
+              >
                 {children}
                 {/* Classification visual overlay */}
                 {isDestSquare && classification && (

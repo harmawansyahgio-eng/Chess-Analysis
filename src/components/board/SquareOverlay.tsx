@@ -22,7 +22,7 @@ const BADGE_CONFIGS: Record<
   BOOK: {
     symbol: '📖',
     badgeBg: 'bg-amber-700',
-    squareBg: 'bg-amber-500/8',
+    squareBg: 'bg-amber-500/[0.08]',
     textColor: 'text-amber-100',
     border: 'border-amber-800',
     shadow: 'shadow-[0_2px_4px_rgba(180,83,9,0.3)]',
@@ -30,7 +30,7 @@ const BADGE_CONFIGS: Record<
   BRILLIANT: {
     symbol: '!!',
     badgeBg: 'bg-cyan-500',
-    squareBg: 'bg-cyan-500/12',
+    squareBg: 'bg-cyan-500/[0.12]',
     textColor: 'text-white font-extrabold',
     border: 'border-cyan-600',
     shadow: 'shadow-[0_2px_8px_rgba(6,182,212,0.4)]',
@@ -62,7 +62,7 @@ const BADGE_CONFIGS: Record<
   GOOD: {
     symbol: '👍',
     badgeBg: 'bg-teal-600',
-    squareBg: 'bg-teal-500/8',
+    squareBg: 'bg-teal-500/[0.08]',
     textColor: 'text-white text-[8px]',
     border: 'border-teal-700',
     shadow: 'shadow-[0_2px_4px_rgba(20,184,166,0.3)]',
@@ -70,7 +70,7 @@ const BADGE_CONFIGS: Record<
   FORCED: {
     symbol: '→',
     badgeBg: 'bg-slate-600',
-    squareBg: 'bg-slate-500/4',
+    squareBg: 'bg-slate-500/[0.04]',
     textColor: 'text-white font-bold',
     border: 'border-slate-700',
     shadow: 'shadow-[0_2px_4px_rgba(71,85,105,0.3)]',
@@ -78,7 +78,7 @@ const BADGE_CONFIGS: Record<
   INACCURACY: {
     symbol: '?!',
     badgeBg: 'bg-yellow-500',
-    squareBg: 'bg-yellow-500/8',
+    squareBg: 'bg-yellow-500/[0.08]',
     textColor: 'text-slate-950 font-bold',
     border: 'border-yellow-600',
     shadow: 'shadow-[0_2px_4px_rgba(234,179,8,0.3)]',
@@ -94,7 +94,7 @@ const BADGE_CONFIGS: Record<
   BLUNDER: {
     symbol: '??',
     badgeBg: 'bg-red-600',
-    squareBg: 'bg-red-500/12',
+    squareBg: 'bg-red-500/[0.12]',
     textColor: 'text-white font-extrabold',
     border: 'border-red-700',
     shadow: 'shadow-[0_2px_8px_rgba(239,68,68,0.4)]',
@@ -194,7 +194,7 @@ export const SquareOverlay: React.FC<SquareOverlayProps> = ({ classification, sq
             className="w-[90%] h-[90%] border-2 border-indigo-400/40 rounded-full"
             initial={{ scale: 0.3, opacity: 1 }}
             animate={{ scale: 1.1, opacity: 0 }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: 'easeOut' }}
+            transition={{ repeat: 2, duration: 1.5, ease: 'easeOut' }}
           />
         </div>
       )}

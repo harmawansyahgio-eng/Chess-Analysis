@@ -1,10 +1,12 @@
 import { Chess } from 'chess.js';
+import type { Square } from 'chess.js';
 import type { Classification, EvalResult } from '../store/chessStore';
 
 export function isSacrifice(
   fenBefore: string,
   fenAfter: string,
-  playerColor: 'w' | 'b'
+  playerColor: 'w' | 'b',
+  playedMoveUci: string
 ): boolean {
   const boardBefore = new Chess(fenBefore);
   const boardAfter = new Chess(fenAfter);
@@ -21,7 +23,7 @@ export function isSacrifice(
   for (let r = 0; r < 8; r++) {
     for (let f = 0; f < 8; f++) {
       const sq = String.fromCharCode(97 + f) + (r + 1);
-      const piece = boardAfter.get(sq as any);
+      const piece = boardAfter.get(sq as Square);
       if (piece && piece.color === playerColor && piece.type !== 'p' && piece.type !== 'k') {
         playerSquares.push(sq);
       }
@@ -30,13 +32,13 @@ export function isSacrifice(
 
   // Check if any of our major pieces is hanging or offered as a sacrifice
   for (const sq of playerSquares) {
-    const piece = boardAfter.get(sq as any);
+    const piece = boardAfter.get(sq as Square);
     if (!piece) continue;
 
-    const isAttackedByOpponent = boardAfter.isAttacked(sq as any, opponentColor);
+    const isAttackedByOpponent = boardAfter.isAttacked(sq as Square, opponentColor);
     if (!isAttackedByOpponent) continue;
 
-    const isDefendedByPlayer = boardAfter.isAttacked(sq as any, playerColor);
+    const isDefendedByPlayer = boardAfter.isAttacked(sq as Square, playerColor);
     
     let isHanging = false;
 
@@ -54,12 +56,12 @@ export function isSacrifice(
       if (pawnRank >= 0 && pawnRank < 8) {
         if (file > 0) {
           const adjSq = String.fromCharCode(97 + file - 1) + (pawnRank + 1);
-          const p = boardAfter.get(adjSq as any);
+          const p = boardAfter.get(adjSq as Square);
           if (p && p.type === 'p' && p.color === opponentColor) isHanging = true;
         }
         if (file < 7) {
           const adjSq = String.fromCharCode(97 + file + 1) + (pawnRank + 1);
-          const p = boardAfter.get(adjSq as any);
+          const p = boardAfter.get(adjSq as Square);
           if (p && p.type === 'p' && p.color === opponentColor) isHanging = true;
         }
       }
@@ -80,7 +82,7 @@ export function isSacrifice(
           const nr = rank + dr;
           if (nf >= 0 && nf < 8 && nr >= 0 && nr < 8) {
             const adjSq = String.fromCharCode(97 + nf) + (nr + 1);
-            const p = boardAfter.get(adjSq as any);
+            const p = boardAfter.get(adjSq as Square);
             if (p && p.type === 'n' && p.color === opponentColor) isHanging = true;
           }
         }
@@ -89,7 +91,8 @@ export function isSacrifice(
 
     if (isHanging) {
       // Ensure the piece was NOT already hanging in the same undefended way before our move
-      const wasHangingBefore = boardBefore.isAttacked(sq as any, opponentColor) && !boardBefore.isAttacked(sq as any, playerColor);
+      const fromSquare = playedMoveUci.substring(0, 2);
+      const wasHangingBefore = boardBefore.isAttacked(fromSquare as Square, opponentColor) && !boardBefore.isAttacked(fromSquare as Square, playerColor);
       if (!wasHangingBefore) {
         return true;
       }
@@ -155,7 +158,7 @@ export function classifyMove({
   const isTopMove = bestMoveUci && playedMoveUci.toLowerCase() === bestMoveUci.toLowerCase();
 
   // 2. Sacrifice detection
-  const isSac = isSacrifice(fenBefore, fenAfter, isWhite ? 'w' : 'b');
+  const isSac = isSacrifice(fenBefore, fenAfter, isWhite ? 'w' : 'b', playedMoveUci);
 
   // Brilliant: Sacrifice that is good, doesn't blunder, is not already completely winning, and leaves a playable position
   if (isSac && (isTopMove || epLoss <= 0.02) && wpBefore < 0.90 && wpAfter >= 0.48) {

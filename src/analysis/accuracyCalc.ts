@@ -1,4 +1,3 @@
-import { useChessStore } from '../store/chessStore';
 import type { Classification } from '../store/chessStore';
 
 /**
@@ -93,7 +92,8 @@ export function getGamePhase(fen: string, index: number): 'OPENING' | 'MIDDLEGAM
 export function calculateSummary(
   moves: Array<{ color: 'w' | 'b'; fenBefore: string; fenAfter: string }>,
   evals: Record<number, { score: number; isMate: boolean }>, // index: -1 is start, 0...N-1
-  classifications: Record<number, Classification>
+  classifications: Record<number, Classification>,
+  pgn: string
 ): GameSummary {
   const whiteAccs: number[] = [];
   const blackAccs: number[] = [];
@@ -169,7 +169,6 @@ export function calculateSummary(
   const blackAccuracy = avg(blackAccs);
 
   // 1. Rating Performance Estimation from PGN
-  const pgn = useChessStore.getState().pgn;
   const whiteEloMatch = pgn.match(/\[WhiteElo\s+"(\d+)"\]/);
   const blackEloMatch = pgn.match(/\[BlackElo\s+"(\d+)"\]/);
   const whiteElo = whiteEloMatch ? parseInt(whiteEloMatch[1], 10) : 1500;
