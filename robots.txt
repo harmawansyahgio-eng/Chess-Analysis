@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://harmawansyahgio-eng.github.io/Chess-Analysis/sitemap.xml
