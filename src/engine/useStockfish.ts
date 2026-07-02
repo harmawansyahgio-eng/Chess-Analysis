@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useChessStore } from '../store/chessStore';
 import type { Move, EvalResult, Classification } from '../store/chessStore';
 import { parseUciInfoLine, parseUciBestMoveLine } from './evalParser';
@@ -13,13 +13,6 @@ let globalBook: OpeningBook | null = null;
 export function useStockfish() {
   const store = useChessStore();
   const currentAnalysisId = useRef<number>(0);
-
-  // Initialize the opening book once at startup
-  useEffect(() => {
-    loadOpeningBook().then((book) => {
-      globalBook = book;
-    });
-  }, []);
 
   const stopAnalysis = () => {
     currentAnalysisId.current++;

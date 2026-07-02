@@ -7,7 +7,6 @@ import { AccuracyChart } from './components/ui/AccuracyChart';
 import { EvalChart } from './components/ui/EvalChart';
 import { useChessStore } from './store/chessStore';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Camera, Upload, X, BarChart2, Volume2, VolumeX } from 'lucide-react';
-import { toPng } from 'html-to-image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChessAudio } from './utils/audio';
 import logoImg from './assets/logo.png';
@@ -96,9 +95,11 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeMoveIndex, moves.length, setActiveMoveIndex]);
 
-  const exportPng = () => {
+  const exportPng = async () => {
     const boardEl = document.getElementById('chessboard-capture-area');
     if (!boardEl) return;
+
+    const { toPng } = await import('html-to-image');
 
     toPng(boardEl, { cacheBust: true, backgroundColor: '#020617' })
       .then((dataUrl) => {
